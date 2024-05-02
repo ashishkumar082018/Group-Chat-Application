@@ -11,8 +11,8 @@ const rootDir = require('./util/path');
 const app = express();
 dotenv.config();
 app.use(cors({
-    origin: ["http://127.0.0.1:3000", "http://localhost:3000"],
-    credentials: true
+    origin: ["http://127.0.0.1:5500", "http://localhost:3000"],
+    // credentials: true
 }));
 
 app.use(bodyParser.urlencoded({ extended: true }));
