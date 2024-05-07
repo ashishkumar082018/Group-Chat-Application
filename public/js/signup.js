@@ -16,6 +16,6 @@ form.addEventListener("submit", async (e) => {
     alert(signup.data.message);
     window.location.href = "login.html";
   } catch (err) {
-    alert(err.response.data.error);
+    alert(err.response ? err.response.data.error : err.message);
   }
 });

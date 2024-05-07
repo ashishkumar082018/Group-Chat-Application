@@ -1,40 +1,21 @@
-const fs = require('fs');
-const path = require('path');
+const { DataTypes } = require("sequelize");
+const database = require("../utils/database");
 
-module.exports = class Message {
-    constructor(message) {
-        this.message = message;
-    }
+const Messages = database.define("messages", {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+    },
+    message: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    sender: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+});
 
-    save() {
-        const p = path.join(
-            path.dirname(require.main.filename),
-            'data',
-            'messages.json'
-        );
-        fs.readFile(p, (err, fileContent) => {
-            let messages = [];
-            if (!err) {
-                messages = JSON.parse(fileContent);
-            }
-            messages.push(this);
-            fs.writeFile(p, JSON.stringify(messages), err => {
-                console.log(err);
-            });
-        });
-    }
-
-    static fetchAll(cb) {
-        const p = path.join(
-            path.dirname(require.main.filename),
-            'data',
-            'messages.json'
-        );
-        fs.readFile(p, (err, fileContent) => {
-            if (err) {
-                cb([]);
-            }
-            cb(JSON.parse(fileContent));
-        });
-    }
-};
+module.exports = Messages;

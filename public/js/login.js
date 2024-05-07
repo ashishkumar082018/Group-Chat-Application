@@ -7,10 +7,10 @@ form.addEventListener("submit", async (e) => {
         const login = await axios.post("http://localhost:3000/login", { email: email, password: password });
         alert(login.data.message);
         localStorage.setItem("token", login.data.token);
-        window.location.href = "/";
+        window.location.href = "./message.html";
     }
     catch (err) {
-        console.log(err)
+        console.error(err)
         alert(err.response.data.error);
     }
 });
