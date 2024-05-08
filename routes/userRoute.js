@@ -11,4 +11,8 @@ router.post("/login", UserController.postLogin);
 
 router.get("/online-users", authenticate, UserController.getOnlineUsers);
 
+router.post("/set-offline", authenticate, UserController.setOfflineUser);
+
+router.post("/set-online", authenticate, UserController.setOnlineUser);
+
 module.exports = router;

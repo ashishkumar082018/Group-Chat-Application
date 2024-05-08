@@ -32,7 +32,7 @@ nav ul li a:hover {
   background-color: aqua;
 }
 
-#signup-div input{
+#signup-div input {
   border: 1.5px solid rgb(211, 18, 147);
 }
 
@@ -49,60 +49,6 @@ nav ul li a:hover {
   background-color: aqua;
 }
 
-#login-div input{
+#login-div input {
   border: 1.5px solid rgb(211, 18, 147);
-}
-
-/* Additional CSS for the new message section */
-
-#message-div {
-  height: 400px;
-  width: 500px;
-  text-align:justify;
-  position: relative;
-  border: 2px solid black;
-  padding: 20px;
-  margin: auto;
-  margin-top: 100px;
-}
-
-#message-form {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-pre {
-  white-space: pre-wrap;
-  max-height: 280px;
-  overflow-y: auto;
-  margin-bottom: 10px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-}
-
-input[type="text"] {
-  width: calc(100% - 10px);
-  padding: 8px;
-  margin-bottom: 10px;
-  border: 2px solid rgb(211, 18, 147);
-  border-radius: 4px;
-}
-
-button[type="submit"] {
-  width: calc(100% - 10px);
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button[type="submit"]:hover {
-  background-color: #45a049;
 }
