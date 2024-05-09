@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message Page</title>
-    <link rel="stylesheet" href="./css/messages.css">
+    <link rel="stylesheet" href="/css/messages.css">
 </head>
 
 <body>
@@ -14,7 +14,8 @@
     <header>
         <nav>
             <ul>
-                <li><a href="message.html"> Messages</a></li>
+                <li><a href="groups.html">Groups</a></li>
+                <li><a class="active" href="message.html">Global Messages</a></li>
                 <li><a href="signup.html">SignUp Page</a></li>
                 <li><a href="login.html">Login Page</a></li>
             </ul>
@@ -24,9 +25,11 @@
     <!-- login form -->
     <div id="message-div">
         <form id="message-form">
-            <pre id="online-users"></pre>
-            <pre id="all-messages"></pre>
-            <label for="message">Message : </label>
+            <label for="online-users">Online Users:</label>
+            <pre id="online-users" name="online-users"></pre>
+            <label for="messages">Messages:</label>
+            <pre id="all-messages" name="messages"></pre>
+            <label for="message">Enter Message : </label>
             <input id="message" name="message" type="text" required>
             <br><br>
             <button type="submit">Send Message</button>
@@ -36,6 +39,6 @@
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
-<script src="/public/js/message.js"></script>
+<script src="/js/message.js"></script>
 
 </html>

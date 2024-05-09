@@ -4,6 +4,7 @@ nav ul {
   padding: 0;
   background-color: rgb(102, 148, 9);
   display: flex;
+  z-index: 10;
 }
 
 nav ul li a {
@@ -18,7 +19,7 @@ nav ul li a:hover {
   color: rgb(92, 27, 189);
 }
 
-#message-div {
+#message-div,#singleGroupPage-section {
   background-color: #f0f8ff;
   height: 90vh;
   position: relative;
@@ -28,7 +29,8 @@ nav ul li a:hover {
   font-size: large;
 }
 
-#message-form {
+#message-form, 
+#singleGroupPage-Form {
   display: flex;
   flex-direction: column;
   background-color: #fff;
@@ -75,4 +77,135 @@ button[type="submit"]:hover {
 
 #online-users {
   color: #0da37f;
+}
+
+
+/* Groups */
+#all-group-heading {
+  text-align: center;
+}
+
+#group-list button {
+  width: 100%;
+}
+
+/* Create Group */
+#create-group-btn {
+  font-size: medium;
+  margin-left: auto;
+  background-color: #4CAF50;
+  border-radius: 1rem;
+}
+
+#createGroupDialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #00000077;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  display: none;
+  height: 100vh;
+  align-content: center;
+  text-align: -webkit-center;
+}
+
+#createGroupDialog.active {
+  display: block;
+}
+
+#close {
+  background-color: #d9534f;
+}
+
+#group-name {
+  position: fixed; 
+  top: 0%; 
+  left: 50%; 
+  transform: translateX(-50%);
+  margin-top: 20px;
+  padding:2px 1rem;
+  font-size: 24px;
+  color: #b81fbe; 
+  background-color: #121212;
+  border-radius: 1rem;
+}
+
+#group-div {
+  background-color: #f0f8ff;
+  height: 80vh;
+  justify-content: center;
+  font-size: large;
+}
+
+#all-group-heading {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+#group-list {
+  list-style-type: none;
+  padding: 0;
+  width: 20%;
+  margin: 0 auto;
+}
+
+#group-list li {
+  padding: 10px;
+  margin-bottom: 5rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(155, 35, 35, 0.1);
+}
+
+.dialog {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.dialog form {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 5px;
+}
+
+.dialog label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.dialog input[type="text"], .dialog button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.dialog button[type="submit"], .dialog button[type="button"] {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.dialog button[type="submit"]:hover, .dialog button[type="button"]:hover {
+  background-color: #45a049;
 }

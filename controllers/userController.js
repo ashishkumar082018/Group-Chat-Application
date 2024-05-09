@@ -58,12 +58,9 @@ exports.postLogin = async (req, res, next) => {
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid password, Please Try Again" });
     }
-
-    user.loggedIn = true;
-    await user.save();
     await t.commit();
     const token = generateAccessToken(user.id, user.email);
-    console.log(token);
+    console.log("token --- " ,token);
     res.status(200).send({ message: "User successfully Logged In", token});
   } catch (err) {
     await t.rollback();

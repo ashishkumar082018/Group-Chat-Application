@@ -6,27 +6,35 @@ const cors = require('cors');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 dotenv.config();
-app.use(cors({
-    origin: ["http://127.0.0.1:5500", "http://localhost:3000"]
-}));
+app.use(cors(
+    {origin: ["http://127.0.0.1:5500", "http://localhost:3000"]}
+));
 
 const messages = require("./routes/messageRoute");
 const user = require("./routes/userRoute");
-const database = require("./utils/database");
-const rootDir = require('./utils/path');
-const User = require("./models/userModel")
+const groups = require("./routes/groupRoute");
 const error = require("./controllers/errorController");
-const Messages = require("./models/messagesModel");
+const database = require("./utils/database");
+const User = require("./models/userModel");
+const Message = require("./models/messagesModel");
+const Group = require("./models/groupModel");
+const GroupMember = require("./models/groupMemberModel");
 
-app.use(user);
 app.use(messages);
+app.use(user);
+app.use(groups);
 app.use(error.error404);
 
-User.hasMany(Messages);
-Messages.belongsTo(User);
+User.hasMany(Message);
+Message.belongsTo(User);
+
+Group.belongsToMany(User, { through: GroupMember });
+User.belongsToMany(Group, { through: GroupMember });
+Group.hasMany(Message);
+Message.belongsTo(Group);
 
 database
     .sync({

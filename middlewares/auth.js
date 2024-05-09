@@ -12,7 +12,7 @@ const authenticate = async (req, res, next) => {
         const user = await User.findByPk(decoded.id);
         
         if (!user) {
-            return res.status(401).json({ message: "Unauthorized: Invalid token" });
+            return res.status(401).json({ error: "Unauthorized: Invalid token" });
         }
         
         req.user = user;
