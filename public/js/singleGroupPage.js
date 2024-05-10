@@ -11,7 +11,8 @@ async function fetchAllMessages() {
         const p2 = axios.get(`http://localhost:3000/get-all-members/${groupId}`, { headers: { "Authorization": token } });
         const [allMessagesResponse, membersResponse] = await Promise.all([p1, p2]);
         const newMessages = allMessagesResponse.data.message;
-        const allMembers = membersResponse.data.message.map(member => `${member}`).join('\n');
+        const allMembers = Object.entries(membersResponse.data.message).map(([id, member]) => 
+            `<li onclick="showOptions(${id})" id="${id}">${member}</li>`).join('');
         memberList.innerHTML = allMembers;
         const storedMessages = localStorage.getItem("messages");
         const allMessages = [...newMessages];
@@ -30,7 +31,37 @@ async function fetchAllMessages() {
         messagesList.textContent = messageContent;
         localStorage.setItem("messages", JSON.stringify(last10Messages));
     } catch (error) {
-        console.error("Error fetching messages:", error);
+        alert(err.response.data.error);
+        window.location.href = "/";
+    }
+}
+
+async function showOptions(userId) {
+    const memberDialog = document.getElementById("memberDialog");
+    memberDialog.classList.add("active");
+    document.getElementById("delete-member").addEventListener("click", () => {
+        deleteUser(userId);
+    });
+    document.getElementById("make-admin").addEventListener("click", () => {
+        makeAdmin(userId);
+    });
+}
+
+async function deleteUser(userId) {
+    try {
+        await axios.delete(`http://localhost:3000/delete-member/${groupId}/${userId}`, { headers: { "Authorization": token } });
+        document.location.reload();
+    } catch (err) {
+        alert(err.response.data.error);
+    }
+}
+
+async function makeAdmin(userId) {
+    try {
+        await axios.put(`http://localhost:3000/make-admin/${groupId}/${userId}`, {}, { headers: { "Authorization": token } });
+        document.location.reload();
+    } catch (err) {
+        alert(err.response.data.error);
     }
 }
 
@@ -58,6 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const li = document.createElement("li");
             li.innerHTML = `<a class="active" href="/group/${groupId}">${groupName}</a>`;
             navBar.appendChild(li);
+            editGroupSettings(navBar);
             groupNameElement.textContent = groupName;
             fetchAllMessages();
             setInterval(fetchAllMessages, 1000);
@@ -65,5 +97,52 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     catch (err) {
         console.error(err);
+    }
+});
+
+async function editGroupSettings(navBar) {
+    const membersResponse = await axios.get(`http://localhost:3000/get-all-members/${groupId}`, { headers: { "Authorization": token } });
+    if (membersResponse.data.admin) {
+        const button = document.createElement("button");
+        button.textContent = "Edit Group Settings";
+        button.type = "button";
+        button.id = "edit-group-settings";
+        button.onclick = () => {
+            document.getElementById("editGroupDialog").classList.add("active");
+            const form = document.getElementById("editGroupForm");
+            const groupName = document.getElementById("groupName");
+            const allMembers = document.getElementById("allMembers");
+            groupName.value = localStorage.getItem("groupName");
+            allMembers.value = membersResponse.data.emails;
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const newGroupName = e.target.groupName.value;
+                const newMembers = e.target.allMembers.value.split(",");
+                try {
+                    await axios.put(`http://localhost:3000/edit-group/${groupId}`, { name: newGroupName, members: newMembers }, { headers: { "Authorization": token } });
+                    window.location.href = "/";
+                } catch (err) {
+                    alert(err.response.data.error);
+                }
+            });
+        }
+        navBar.appendChild(button);
+    }
+}
+
+document.getElementById("close").addEventListener("click", () => {
+    document.getElementById("editGroupDialog").classList.remove("active");
+});
+
+document.getElementById("cancel").addEventListener("click", () => {
+    document.getElementById("memberDialog").classList.remove("active");
+});
+
+document.getElementById("delete-group").addEventListener("click", async () => {
+    try {
+        await axios.delete(`http://localhost:3000/delete-group/${groupId}`, { headers: { "Authorization": token } });
+        window.location.href = "/";
+    } catch (err) {
+        alert(err.response.data.error);
     }
 });

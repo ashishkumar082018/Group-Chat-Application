@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Chat App</title>
-    <link rel="stylesheet" href="/css/messages.css">
+    <link rel="stylesheet"  type="text/css" href="/css/messages.css">
 </head>
 
 <body>
@@ -31,8 +31,8 @@
         <form id="createGroupForm">
             <label for="groupName">Group Name:</label>
             <input type="text" id="groupName" name="groupName" required>
-            <label for="members">Members Emails (comma separated):</label>
-            <input type="text" id="members" name="members" required>
+            <label for="membersInput">Members Emails (comma separated):</label>
+            <input type="text" id="membersInput" name="membersInput" required>
             <button type="submit">Create Group</button>
             <button type="button" id="close">Close</button>
         </form>
@@ -41,6 +41,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"
     integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="/js/groups.js"></script>
+<script src="/js/groups.js" type="application/javascript" ></script>
 
 </html>

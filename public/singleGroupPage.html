@@ -19,11 +19,12 @@
             </ul>
         </nav>
     </header>
+
     <section id="singleGroupPage-section">
         <h1 id="group-name"></h1>
         <form id = "singleGroupPage-Form">
             <label for="members">Members:</label>
-            <pre id="members" name="members"></pre>
+            <ul id="members" name="members"></ul>
             <label for="messages">Messages:</label>
             <pre id="all-messages" name="messages"></pre>
             <label for="message">Message:</label>
@@ -31,7 +32,28 @@
             <button type="submit">Send</button>
         </form>
     </section>
-  
+    <br> <br>   
+    <div id="editGroupDialog" class="dialog">
+        <form id="editGroupForm">
+            <label for="groupName">Group Name:</label>
+            <input type="text" id="groupName" name="groupName" required>
+            <label for="allMembers">Members Emails (comma separated):</label>
+            <input type="text" id="allMembers" name="allMembers" required>
+            <button type="submit">Edit Group</button>
+            <button type="button" id="delete-group">Delete Group</button>
+            <button type="button" id="close">Close</button>
+        </form>
+    </div>
+
+<br> <br> 
+    <div id="memberDialog" class="dialog">
+        <form id="memberForm">
+            <button type="button" id="make-admin">Make Admin</button>
+            <button type="button" id="delete-member">Delete Member</button>
+            <button type="button" id="cancel">Cancel</button>
+        </form>
+    </div>
+
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js"
