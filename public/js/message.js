@@ -5,8 +5,8 @@ async function fetchAllMessages() {
     const onlineUsersList = document.getElementById("online-users");
     const messagesList = document.getElementById("all-messages");
     try {
-        const p1 = axios.get("http://localhost:3000/all", { headers: { "Authorization": token } });
-        const p2 = axios.get("http://localhost:3000/online-users", { headers: { "Authorization": token } });
+        const p1 = axios.get("https://group-chat-app.ashishkumar.store/all", { headers: { "Authorization": token } });
+        const p2 = axios.get("https://group-chat-app.ashishkumar.store/online-users", { headers: { "Authorization": token } });
         const [allMessagesResponse, onlineUsersResponse] = await Promise.all([p1, p2]);
         const newMessages = allMessagesResponse.data.message;
         const onlineUsers = onlineUsersResponse.data.message.map(user => `${user} joined`).join('\n');
@@ -35,7 +35,7 @@ form.addEventListener("submit", async (e) => {
     try {
         e.preventDefault();
         const message = e.target.message.value;
-        await axios.post("http://localhost:3000/global", { message }, { headers: { "Authorization": token } });
+        await axios.post("https://group-chat-app.ashishkumar.store/global", { message }, { headers: { "Authorization": token } });
         document.location.reload();
     }
     catch (err) {
@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.location.href = "/login";
         }
         else {
-            await axios.post("http://localhost:3000/set-online", {}, { headers: { "Authorization": token } });
+            await axios.post("https://group-chat-app.ashishkumar.store/set-online", {}, { headers: { "Authorization": token } });
         }
         fetchAllMessages();
         setInterval(fetchAllMessages, 1000);
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 window.addEventListener('beforeunload', setOfflineUser);
 async function setOfflineUser(e) {
     try {
-        await axios.post("http://localhost:3000/set-offline", {}, { headers: { "Authorization": token } });
+        await axios.post("https://group-chat-app.ashishkumar.store/set-offline", {}, { headers: { "Authorization": token } });
     } catch (error) {
         alert("Error sending offline status:", error);
     }

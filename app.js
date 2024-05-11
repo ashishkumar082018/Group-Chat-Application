@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 dotenv.config();
 app.use(cors(
-    {origin: ["http://127.0.0.1:5500", "http://localhost:3000"]}
+    { origin: ["https://group-chat-app.ashishkumar.store"] }
 ));
 
 const messages = require("./routes/messageRoute");

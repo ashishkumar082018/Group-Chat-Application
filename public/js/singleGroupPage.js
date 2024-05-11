@@ -7,8 +7,8 @@ async function fetchAllMessages() {
     const memberList = document.getElementById("members");
     const messagesList = document.getElementById("all-messages");
     try {
-        const p1 = axios.get(`http://localhost:3000/get-all-messages/${groupId}`, { headers: { "Authorization": token } });
-        const p2 = axios.get(`http://localhost:3000/get-all-members/${groupId}`, { headers: { "Authorization": token } });
+        const p1 = axios.get(`https://group-chat-app.ashishkumar.store/get-all-messages/${groupId}`, { headers: { "Authorization": token } });
+        const p2 = axios.get(`https://group-chat-app.ashishkumar.store/get-all-members/${groupId}`, { headers: { "Authorization": token } });
         const [allMessagesResponse, membersResponse] = await Promise.all([p1, p2]);
         const newMessages = allMessagesResponse.data.message;
         const allMembers = Object.entries(membersResponse.data.message).map(([id, member]) => 
@@ -49,7 +49,7 @@ async function showOptions(userId) {
 
 async function deleteUser(userId) {
     try {
-        await axios.delete(`http://localhost:3000/delete-member/${groupId}/${userId}`, { headers: { "Authorization": token } });
+        await axios.delete(`https://group-chat-app.ashishkumar.store/delete-member/${groupId}/${userId}`, { headers: { "Authorization": token } });
         document.location.reload();
     } catch (err) {
         alert(err.response.data.error);
@@ -58,7 +58,7 @@ async function deleteUser(userId) {
 
 async function makeAdmin(userId) {
     try {
-        await axios.put(`http://localhost:3000/make-admin/${groupId}/${userId}`, {}, { headers: { "Authorization": token } });
+        await axios.put(`https://group-chat-app.ashishkumar.store/make-admin/${groupId}/${userId}`, {}, { headers: { "Authorization": token } });
         document.location.reload();
     } catch (err) {
         alert(err.response.data.error);
@@ -69,7 +69,7 @@ form.addEventListener("submit", async (e) => {
     try {
         e.preventDefault();
         const message = e.target.message.value;
-        await axios.post(`http://localhost:3000/send-group-message/${groupId}`, { message }, { headers: { "Authorization": token } });
+        await axios.post(`https://group-chat-app.ashishkumar.store/send-group-message/${groupId}`, { message }, { headers: { "Authorization": token } });
         document.location.reload();
     }
     catch (err) {
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function editGroupSettings(navBar) {
-    const membersResponse = await axios.get(`http://localhost:3000/get-all-members/${groupId}`, { headers: { "Authorization": token } });
+    const membersResponse = await axios.get(`https://group-chat-app.ashishkumar.store/get-all-members/${groupId}`, { headers: { "Authorization": token } });
     if (membersResponse.data.admin) {
         const button = document.createElement("button");
         button.textContent = "Edit Group Settings";
@@ -119,7 +119,7 @@ async function editGroupSettings(navBar) {
                 const newGroupName = e.target.groupName.value;
                 const newMembers = e.target.allMembers.value.split(",");
                 try {
-                    await axios.put(`http://localhost:3000/edit-group/${groupId}`, { name: newGroupName, members: newMembers }, { headers: { "Authorization": token } });
+                    await axios.put(`https://group-chat-app.ashishkumar.store/edit-group/${groupId}`, { name: newGroupName, members: newMembers }, { headers: { "Authorization": token } });
                     window.location.href = "/";
                 } catch (err) {
                     alert(err.response.data.error);
@@ -140,7 +140,7 @@ document.getElementById("cancel").addEventListener("click", () => {
 
 document.getElementById("delete-group").addEventListener("click", async () => {
     try {
-        await axios.delete(`http://localhost:3000/delete-group/${groupId}`, { headers: { "Authorization": token } });
+        await axios.delete(`https://group-chat-app.ashishkumar.store/delete-group/${groupId}`, { headers: { "Authorization": token } });
         window.location.href = "/";
     } catch (err) {
         alert(err.response.data.error);
