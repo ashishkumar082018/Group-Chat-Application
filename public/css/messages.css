@@ -255,3 +255,6 @@ button[type="submit"]:hover {
   padding: 14px 16px;
   border-radius: 2rem;
 }
+#image-input{
+  margin: 5px;
+}

@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const socket = require("socket.io");
 const http = require("http");
+const upload = require("./routes/uploadRoute");
 
 const app = express();
 const server = http.createServer(app);
@@ -32,6 +33,7 @@ const messagesSocket = require("./sockets/messageSocket");
 const groupsSocket = require("./sockets/groupSoket");
 
 app.use(views);
+app.use(upload);
 app.use(user);
 app.use(groups);
 app.use(error.error404);
