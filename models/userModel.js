@@ -19,10 +19,6 @@ const User = database.define("User", {
     password: {
         type: DataTypes.STRING,
         allowNull: false,
-    },
-    loggedIn: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
     }
 });
 

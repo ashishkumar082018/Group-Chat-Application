@@ -1,15 +1,9 @@
-const path = require("path");
 const bcrypt = require("bcrypt");
-const rootDir = require("../utils/path");
 const User = require("../models/userModel");
 const database = require("../utils/database");
 const jwt = require("jsonwebtoken");
 
 // for signup page
-
-exports.getSignup = (req, res, next) => {
-  res.sendFile(path.join(rootDir, "public", "signup.html"));
-};
 
 exports.postSignup = async (req, res, next) => {
   const t = await database.transaction();
@@ -38,10 +32,6 @@ exports.postSignup = async (req, res, next) => {
 
 // for login page
 
-exports.getLogin = (req, res, next) => {
-  res.sendFile(path.join(rootDir, "public", "login.html"));
-};
-
 function generateAccessToken(id, email) {
   return jwt.sign({ id: id, email: email }, process.env.ACCESS_TOKEN_SECRET);
 }
@@ -60,7 +50,7 @@ exports.postLogin = async (req, res, next) => {
     }
     await t.commit();
     const token = generateAccessToken(user.id, user.email);
-    console.log("token --- " ,token);
+    // console.log("token --- " ,token);
     res.status(200).send({ message: "User successfully Logged In", token});
   } catch (err) {
     await t.rollback();
@@ -72,50 +62,3 @@ exports.postLogin = async (req, res, next) => {
     }
   }
 };
-
-exports.getOnlineUsers = async (req, res, next) => {
-  try {
-      const users = await User.findAll({ where: { loggedIn: true } });
-      const names = users.map(user => {
-          if (req.user.name == user.name) {
-              return `You`;
-          }
-          else {
-              return user.name;
-          }
-      });
-      res.status(200).json({ message: names });
-  }
-  catch (err) {
-      console.error(err.errors[0].message);
-      res.status(500).json({ error: err.errors[0].message });
-  }
-}
-
-exports.setOfflineUser = async (req, res, next) => {
-  const t = await database.transaction();
-  try {
-      req.user.loggedIn = false;
-      await req.user.save();
-      await t.commit();
-      res.status(200).json({ message: "User is offline" });
-  } catch (err) {
-      await t.rollback();
-      console.error(err.errors[0].message);
-      res.status(500).json({ error: err.errors[0].message });
-  }
-}
-
-exports.setOnlineUser = async (req, res, next) => {
-  const t = await database.transaction();
-  try {
-      req.user.loggedIn = true;
-      await req.user.save();
-      await t.commit();
-      res.status(200).json({ message: "User is online" });
-  } catch (err) {
-      await t.rollback();
-      console.error(err.errors[0].message);
-      res.status(500).json({ error: err.errors[0].message });
-  }
-}

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Message Page</title>
-    <link rel="stylesheet" href="/css/messages.css">
+    <link rel="stylesheet" type="text/css" href="/css/messages.css">
 </head>
 
 <body>
@@ -22,7 +22,6 @@
         </nav>
     </header>
 
-    <!-- login form -->
     <div id="message-div">
         <form id="message-form">
             <label for="online-users">Online Users:</label>
@@ -38,7 +37,8 @@
 
 
 </body>
+<script src="/socket.io/socket.io.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
-<script src="/js/message.js"></script>
+<script src="/js/message.js" type="application/javascript"></script>
 
 </html>
