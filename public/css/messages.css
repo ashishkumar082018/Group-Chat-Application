@@ -255,6 +255,12 @@ button[type="submit"]:hover {
   padding: 14px 16px;
   border-radius: 2rem;
 }
+
 #image-input{
   margin: 5px;
+}
+
+.message-image{
+  max-width :20rem;
+  max-height:50rem;
 }

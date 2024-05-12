@@ -6,6 +6,7 @@ const cors = require('cors');
 const socket = require("socket.io");
 const http = require("http");
 const upload = require("./routes/uploadRoute");
+const cron = require('cron');
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +32,7 @@ const GroupMember = require("./models/groupMemberModel");
 const authenticateSocket = require("./middlewares/authSocket");
 const messagesSocket = require("./sockets/messageSocket");
 const groupsSocket = require("./sockets/groupSoket");
+const { archiveOldMessages } = require("./utils/cron")
 
 app.use(views);
 app.use(upload);
@@ -55,6 +57,8 @@ database
             console.log(`Server is running on port ${process.env.PORT}`);
         });
         console.log("Database connected");
+        const job = new cron.CronJob('0 0 * * *', archiveOldMessages, null, false, 'Asia/Kolkata');
+        job.start();
 
     io.on("connection", async (socket) => {
         socket.on("message", (message) => {
