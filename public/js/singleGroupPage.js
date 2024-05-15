@@ -14,17 +14,16 @@ form.addEventListener("submit", async (e) => {
         socket.emit("post-group-message", message);
         e.target.message.value = "";
         const li = document.createElement("li");
-        if(message.startsWith("![Image]")){
+        if (message.startsWith("![Image]")) {
             li.innerHTML = "You" + ": " + `<img class="message-image" src="${message.substring(9, message.length - 1)}" alt="Image">`;
-        }else{
+        } else {
             li.innerText = "You" + ": " + message;
         }
         messagesList.appendChild(li);
         messagesList.scrollTop = messagesList.scrollHeight;
         if (messagesList.children.length > 10)
             messagesList.firstChild.remove();
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
 });
@@ -38,7 +37,7 @@ async function uploadImage(file) {
     try {
         const formData = new FormData();
         formData.append('image', file);
-        const response = await axios.post('https://group-chat-app.ashishkumar.store/upload-image', formData, {
+        const response = await axios.post('http://localhost:3000/upload-image', formData, {
             headers: { "Authorization": token, "Content-Type": "multipart/form-data" }
         });
         const imageUrl = response.data.imageUrl;
@@ -61,14 +60,13 @@ socket.on("auth-error", () => {
 
 socket.emit("get-group-members", groupId);
 
-socket.on("group-members", (idAndNames, admin, emails) => {
-    console.log(admin)
+socket.on("group-members", (members, isAdmin, emails) => {
     const memberList = document.getElementById("members");
     try {
-        const allMembers = Object.entries(idAndNames).map(([id, member]) => {
-            return `<li onclick="showOptions(${id})" id="${id}">${member}</li>`;
+        const allMembers = Object.keys(members).map(memberId => {
+            return `<li onclick="showOptions(${memberId})" id="${memberId}">${members[memberId]}</li>`;
         }).join('');
-        if (admin) {
+        if (isAdmin) {
             const button = document.createElement("button");
             button.textContent = "Edit Group Settings";
             button.type = "button";
@@ -76,16 +74,16 @@ socket.on("group-members", (idAndNames, admin, emails) => {
             button.onclick = () => {
                 document.getElementById("editGroupDialog").classList.add("active");
                 const form = document.getElementById("editGroupForm");
-                const groupName = document.getElementById("groupName");
-                const allMembers = document.getElementById("allMembers");
-                groupName.value = localStorage.getItem("groupName");
-                allMembers.value = emails;
+                const groupNameInput = document.getElementById("groupName");
+                const allMembersInput = document.getElementById("allMembers");
+                groupNameInput.value = groupName; // Using the variable groupName instead of localStorage.getItem("groupName")
+                allMembersInput.value = emails.join(", ");
                 form.addEventListener("submit", async (e) => {
                     e.preventDefault();
                     const newGroupName = e.target.groupName.value;
-                    const newMembers = e.target.allMembers.value.split(",");
+                    const newMembers = e.target.allMembers.value.split(",").map(email => email.trim());
                     try {
-                        await axios.put(`https://group-chat-app.ashishkumar.store/edit-group/${groupId}`, { name: newGroupName, members: newMembers }, { headers: { "Authorization": token } });
+                        await axios.put(`http://localhost:3000/edit-group/${groupId}`, { name: newGroupName, members: newMembers }, { headers: { "Authorization": token } });
                         window.location.href = "/";
                     } catch (err) {
                         alert(err.response.data.error);
@@ -95,18 +93,18 @@ socket.on("group-members", (idAndNames, admin, emails) => {
             navBar.appendChild(button);
         }
         memberList.innerHTML = allMembers;
-    }
-    catch (err) {
+    } catch (err) {
         console.log(err);
     }
-})
+});
+
 
 function addMessageToList(message) {
     const li = document.createElement("li");
-    if(message.message.startsWith("![Image]")){
-        li.innerHTML = message.sender + ": " + `<img class="message-image" src="${message.message.substring(9, message.message.length - 1)}" alt="Image">`;
-    }else{
-        li.innerText = message.sender + ": " + message.message;
+    if (message.messageContent.startsWith("![Image]")) {
+        li.innerHTML = message.senderName + ": " + `<img class="message-image" src="${message.messageContent.substring(9, message.messageContent.length - 1)}" alt="Image">`;
+    } else {
+        li.innerText = message.senderName + ": " + message.messageContent;
     }
     messagesList.appendChild(li);
     messagesList.scrollTop = messagesList.scrollHeight;
@@ -152,17 +150,19 @@ async function showOptions(userId) {
         makeAdmin(userId);
     });
 }
+
 async function deleteUser(userId) {
     try {
-        await axios.delete(`https://group-chat-app.ashishkumar.store/delete-member/${groupId}/${userId}`, { headers: { "Authorization": token } });
+        await axios.delete(`http://localhost:3000/delete-member/${groupId}/${userId}`, { headers: { "Authorization": token } });
         document.location.reload();
     } catch (err) {
         alert(err.response.data.error);
     }
 }
+
 async function makeAdmin(userId) {
     try {
-        await axios.put(`https://group-chat-app.ashishkumar.store/make-admin/${groupId}/${userId}`, {}, { headers: { "Authorization": token } });
+        await axios.put(`http://localhost:3000/make-admin/${groupId}/${userId}`, {}, { headers: { "Authorization": token } });
         document.location.reload();
     } catch (err) {
         alert(err.response.data.error);
@@ -172,12 +172,14 @@ async function makeAdmin(userId) {
 document.getElementById("close").addEventListener("click", () => {
     document.getElementById("editGroupDialog").classList.remove("active");
 });
+
 document.getElementById("cancel").addEventListener("click", () => {
     document.getElementById("memberDialog").classList.remove("active");
 });
+
 document.getElementById("delete-group").addEventListener("click", async () => {
     try {
-        await axios.delete(`https://group-chat-app.ashishkumar.store/delete-group/${groupId}`, { headers: { "Authorization": token } });
+        await axios.delete(`http://localhost:3000/delete-group/${groupId}`, { headers: { "Authorization": token } });
         window.location.href = "/";
     } catch (err) {
         alert(err.response.data.error);

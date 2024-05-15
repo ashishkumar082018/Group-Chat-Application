@@ -4,58 +4,63 @@ const Group = require("../models/groupModel");
 const database = require("../utils/database");
 
 exports.deleteGroup = async (req, res, next) => {
-    const t = await database.transaction();
+    const transaction = await database.transaction();
     try {
         const groupId = req.params.groupId;
         const group = await Group.findByPk(groupId);
         const adminUser = await group.getUsers({
             where: { id: req.user.id },
-            through: { where: { admin: true } }
+            through: { where: { isAdmin: true } }
         });
         if (adminUser.length == 0 || adminUser[0].id != req.user.id) {
             return res.status(401).json({ error: 'You are not admin' });
         }
-        await group.destroy({ transaction: t });
-        await t.commit();
+        await group.destroy({ transaction });
+        await transaction.commit();
         res.status(200).json({ message: 'Group deleted successfully' });
     } catch (err) {
-        await t.rollback();
+        await transaction.rollback();
         console.error(err.errors[0].message);
         res.status(500).json({ error: err.errors[0].message });
     }
 }
 
 exports.editGroup = async (req, res, next) => {
-    const t = await database.transaction();
+    const transaction = await database.transaction();
     try {
         const groupId = req.params.groupId;
         const group = await Group.findByPk(groupId);
         const adminUser = await group.getUsers({
             where: { id: req.user.id },
-            through: { where: { admin: true } }
+            through: { where: { isAdmin: true } }
         });
         if (adminUser.length == 0 || adminUser[0].id != req.user.id) {
             return res.status(401).json({ error: 'You are not admin' });
         }
-        group.name = req.body.name;
-        await group.save({ transaction: t });
+
+        // Update the group name
+        await group.update({ groupName: req.body.name }, { transaction });
+
+        // Update group members
         const members = req.body.members;
         for (const member of members) {
-            const user = await User.findOne({ where: { email: member } });
+            const user = await User.findOne({ where: { userEmail: member } });
             if (!user) {
-                await t.rollback();
+                await transaction.rollback();
                 return res.status(500).json({ error: `User with email ${member} not found` });
             }
-            await group.addUser(user, { transaction: t });
+            await GroupMember.findOrCreate({ where: { GroupId: groupId, UserId: user.id }, transaction });
         }
-        await t.commit();
+
+        await transaction.commit();
         res.status(200).json({ message: 'Group edited successfully' });
     } catch (err) {
-        await t.rollback();
+        await transaction.rollback();
         console.error(err.errors[0].message);
         res.status(500).json({ error: err.errors[0].message });
     }
 }
+
 
 exports.deleteMember = async (req, res, next) => {
     try {
@@ -64,12 +69,12 @@ exports.deleteMember = async (req, res, next) => {
         const group = await Group.findByPk(groupId);
         const adminUser = await group.getUsers({
             where: { id: req.user.id },
-            through: { where: { admin: true } }
+            through: { where: { isAdmin: true } }
         });
         if (adminUser.length == 0 || adminUser[0].id != req.user.id) {
             return res.status(401).json({ error: 'You are not admin' });
         }
-        await GroupMember.destroy({ where: { groupId: groupId, userId: userId } });
+        await GroupMember.destroy({ where: { GroupId: groupId, UserId: userId } });
         res.status(200).json({ message: 'Member deleted successfully' });
     } catch (err) {
         console.error(err.errors[0].message);
@@ -84,12 +89,12 @@ exports.makeAdmin = async (req, res, next) => {
         const group = await Group.findByPk(groupId);
         const adminUser = await group.getUsers({
             where: { id: req.user.id },
-            through: { where: { admin: true } }
+            through: { where: { isAdmin: true } }
         });
         if (adminUser.length == 0 || adminUser[0].id != req.user.id) {
             return res.status(401).json({ error: 'You are not admin' });
         }
-        await GroupMember.update({ admin: true }, { where: { groupId: groupId, userId: userId } });
+        await GroupMember.update({ isAdmin: true }, { where: { GroupId: groupId, UserId: userId } });
         res.status(200).json({ message: 'Member made admin successfully' });
     } catch (err) {
         console.error(err.errors[0].message);

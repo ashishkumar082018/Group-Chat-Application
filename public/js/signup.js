@@ -12,7 +12,7 @@ form.addEventListener("submit", async (e) => {
       phone: phone,
       password: password,
     };
-    const signup = await axios.post("https://group-chat-app.ashishkumar.store/signup", userObj);
+    const signup = await axios.post("http://localhost:3000/signup", userObj);
     alert(signup.data.message);
     window.location.href = "login.html";
   } catch (err) {

@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 dotenv.config();
 app.use(cors(
-    { origin: ["https://group-chat-app.ashishkumar.store"] }
+    { origin: ["http://localhost:3000", 'http://127.0.0.1:5500'] }
 ));
 
 const views = require("./routes/viewRoute");
@@ -26,13 +26,14 @@ const groups = require("./routes/groupRoute");
 const error = require("./controllers/errorController");
 const database = require("./utils/database");
 const User = require("./models/userModel");
-const Message = require("./models/messagesModel");
+const Message = require("./models/messageModel");
 const Group = require("./models/groupModel");
 const GroupMember = require("./models/groupMemberModel");
 const authenticateSocket = require("./middlewares/authSocket");
 const messagesSocket = require("./sockets/messageSocket");
 const groupsSocket = require("./sockets/groupSoket");
-const { archiveOldMessages } = require("./utils/cron")
+const { archiveOldMessages } = require("./utils/cron");
+const Archived = require("./models/archievedModel");
 
 app.use(views);
 app.use(upload);
@@ -48,6 +49,13 @@ User.belongsToMany(Group, { through: GroupMember });
 Group.hasMany(Message);
 Message.belongsTo(Group);
 
+Archived.belongsTo(User);
+User.hasMany(Archived);
+GroupMember.belongsTo(User);
+GroupMember.belongsTo(Group);
+Group.hasMany(GroupMember);
+
+
 database
     .sync({
        // force : true
@@ -62,6 +70,7 @@ database
 
     io.on("connection", async (socket) => {
         socket.on("message", (message) => {
+            // console.log(message);
             authenticateSocket(socket, (err) => {
                 if (err) {
                     console.log(err);
@@ -85,7 +94,7 @@ database
                     messagesSocket.getAllMessages(socket);
                 })
                 socket.on("user-left", () => {
-                    socket.broadcast.emit("user-left", { username: socket.user.name });
+                    socket.broadcast.emit("user-left", { username: socket.user.userName });
                 })
                 socket.on("get-group-members", (groupId) => {
                     socket.join(groupId);

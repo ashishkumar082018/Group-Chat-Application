@@ -1,59 +1,61 @@
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const database = require("../utils/database");
-const jwt = require("jsonwebtoken");
-
-// for signup page
 
 exports.postSignup = async (req, res, next) => {
-  const t = await database.transaction();
+  const transaction = await database.transaction();
   try {
     const { name, email, phone, password } = req.body;
-    console.log("Password : ", req.body.password); // Log the received password
-    const modifiedPassword = bcrypt.hashSync(password, 10);
-    console.log("Modified password:", modifiedPassword); // Log modified password
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Check if a user with the provided email already exists
-    const existingUser = await User.findOne({ where: { email: email } });
+    const existingUser = await User.findOne({ where: { userEmail: email } });
     if (existingUser) {
       return res.status(400).json({ error: "Email already in use" });
     }
 
-    //if user don't exists then create an new user
-    await User.create({ name: name, email: email, phone: phone, password: modifiedPassword });
-    await t.commit();
+    // Create a new user
+    await User.create({ userName: name, userEmail: email, userPhone: phone, userPassword: hashedPassword }, { transaction });
+    await transaction.commit();
     res.status(200).send({ message: "User Created Successfully" });
   } catch (err) {
     console.error(err);
-    await t.rollback();
+    await transaction.rollback();
     res.status(500).send({ error: "An error occurred while creating the user" });
   }
 };
 
-// for login page
-
 function generateAccessToken(id, email) {
-  return jwt.sign({ id: id, email: email }, process.env.ACCESS_TOKEN_SECRET);
+  return jwt.sign({ id: id, userEmail: email }, process.env.ACCESS_TOKEN_SECRET);
 }
 
 exports.postLogin = async (req, res, next) => {
-  const t = await database.transaction();
+  const transaction = await database.transaction();
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email: email } });
+
+    // Find user by email
+    const user = await User.findOne({ where: { userEmail: email } });
     if (!user) {
       return res.status(404).json({ error: "User not found, Please Signup" });
     }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    // Check if password is valid
+    const isPasswordValid = await bcrypt.compare(password, user.userPassword);
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid password, Please Try Again" });
     }
-    await t.commit();
-    const token = generateAccessToken(user.id, user.email);
-    // console.log("token --- " ,token);
-    res.status(200).send({ message: "User successfully Logged In", token});
+
+    await transaction.commit();
+
+    // Generate JWT token
+    const token = generateAccessToken(user.id, user.userEmail);
+    res.status(200).send({ message: "User successfully Logged In", token });
   } catch (err) {
-    await t.rollback();
+    await transaction.rollback();
     if (err.statusCode && err.statusCode !== 500) {
       res.status(err.statusCode).json({ error: err.message });
     } else {

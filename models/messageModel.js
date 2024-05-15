@@ -2,11 +2,11 @@ const { DataTypes } = require("sequelize");
 const database = require("../utils/database");
 
 const Message = database.define("Message", {
-    message: {
+    messageContent: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    sender: {
+    senderName: {
         type: DataTypes.STRING,
         allowNull: false,
     },

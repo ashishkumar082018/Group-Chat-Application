@@ -1,13 +1,14 @@
-const Message = require("../models/messagesModel")
-const database = require("../utils/database")
+const Message = require("../models/messageModel");
+const database = require("../utils/database");
 
 exports.postMessages = async (socket, message) => {
-    const { name, id } = socket.user;
+    const { userName, id } = socket.user;
+    // console.log(socket.user);
     const t = await database.transaction();
     try {
-        await Message.create({ message: message, sender: name, UserId: id });
+        await Message.create({ messageContent: message, senderName: userName, UserId: id });
         await t.commit();
-        socket.broadcast.emit("message", { message: message, sender: name, userId: id });
+        socket.emit("post-group-message", { messageContent: message, senderName: userName, userId: id });
     } catch (error) {
         console.error(error.message);
         await t.rollback();
@@ -15,7 +16,7 @@ exports.postMessages = async (socket, message) => {
 };
 
 exports.getAllMessages = async (socket) => {
-    const { name } = socket.user;
+    const { userName } = socket.user;
     try {
         const result = await Message.findAndCountAll({
             where: { GroupId: null },
@@ -27,17 +28,17 @@ exports.getAllMessages = async (socket) => {
             offset: offset,
             limit: 10,
         });
-        messages.map((message) => {
-            if (message.sender == name) {
-                message.sender = "You";
+        messages.forEach((message) => {
+            if (message.senderName == userName) {
+                message.senderName = "You";
             }
-            else {
-                message.sender = message.sender;
+            else{
+                message.senderName = message.senderName;
             }
-        })
-        socket.broadcast.emit("user-joined", { username: socket.user.name });
+        });
+        socket.broadcast.emit("user-joined", { username: socket.user.userName });
         socket.emit("all-messages", messages);
     } catch (err) {
         console.log(err);
     }
-}
+};

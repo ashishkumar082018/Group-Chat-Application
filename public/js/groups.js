@@ -1,5 +1,6 @@
-const token = localStorage.getItem("token");
-const socket = io({ auth: { token: token } });
+const authToken = localStorage.getItem("token");
+const socket = io({ auth: { token: authToken } });
+
 socket.on("auth-error", () => {
   alert("Authentication error: You are not logged in!");
   window.location.href = "/login";
@@ -16,9 +17,9 @@ document.getElementById("close").addEventListener("click", () => {
 document.getElementById("createGroupForm").addEventListener("submit", (e) => {
   e.preventDefault();
   try {
-    if (!token) {
+    if (!authToken) {
       alert("You are not logged in!");
-      document.location.href = "/login";
+      window.location.href = "/login";
       return;
     }
     const name = e.target.groupName.value;
@@ -44,13 +45,14 @@ socket.on("group-created", () => {
 
 socket.emit("get-groups", async (groups) => {
   try {
-    if (!token) {
+    console.log(groups);
+    if (!authToken) {
       alert("You are not logged in!");
-      document.location.href = "/login";
+      window.location.href = "/login";
     } else {
       const groupList = document.getElementById("group-list");
       groups.forEach((group) => {
-        groupList.innerHTML += `<button type="button" id=${group.id} onclick="singleGroup(${group.id}, '${group.name}')">${group.name}</button>`;
+        groupList.innerHTML += `<button type="button" id=${group.id} onclick="singleGroup(${group.id}, '${group.groupName}')">${group.groupName}</button>`;
       });
     }
   } catch (err) {
@@ -61,13 +63,13 @@ socket.emit("get-groups", async (groups) => {
 
 async function singleGroup(id, name) {
   try {
-    if (!token) {
+    if (!authToken) {
       alert("You are not logged in!");
-      document.location.href = "/login";
+      window.location.href = "/login";
     } else {
       localStorage.setItem("groupId", id);
       localStorage.setItem("groupName", name);
-      document.location.href = `/group/${id}`;
+      window.location.href = `/group/${id}`;
     }
   } catch (err) {
     console.error(err);

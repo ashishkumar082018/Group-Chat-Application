@@ -1,6 +1,6 @@
 const form = document.querySelector("form");
-const token = localStorage.getItem("token");
-const socket = io({ auth: { token: token } });
+const authToken = localStorage.getItem("token");
+const socket = io({ auth: { token: authToken } });
 const messagesList = document.getElementById("all-messages");
 const onlineUsers = document.getElementById("online-users");
 const imageInput = document.getElementById('image-input');
@@ -15,14 +15,14 @@ socket.on("auth-error", () => {
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     try {
-        const message = e.target.message.value;
-        socket.emit("message", message);
+        const messageContent = e.target.message.value;
+        socket.emit("message", messageContent);
         e.target.message.value = "";
         const li = document.createElement("li");
-        if(message.startsWith("![Image]")){
-            li.innerHTML = "You" + ": " + `<img class="message-image" src="${message.substring(9, message.length - 1)}" alt="Image">`;
-        }else{
-            li.innerText = "You" + ": " + message;
+        if (messageContent.startsWith("![Image]")) {
+            li.innerHTML = "You" + ": " + `<img class="message-image" src="${messageContent.substring(9, messageContent.length - 1)}" alt="Image">`;
+        } else {
+            li.innerText = "You" + ": " + messageContent;
         }
         messagesList.appendChild(li);
         messagesList.scrollTop = messagesList.scrollHeight;
@@ -43,8 +43,8 @@ async function uploadImage(file) {
     try {
         const formData = new FormData();
         formData.append('image', file);
-        const response = await axios.post('https://group-chat-app.ashishkumar.store/upload-image', formData, {
-            headers: { "Authorization": token, "Content-Type": "multipart/form-data" }
+        const response = await axios.post('http://localhost:3000/upload-image', formData, {
+            headers: { "Authorization": authToken, "Content-Type": "multipart/form-data" }
         });
         const imageUrl = response.data.imageUrl;
         const messageInput = document.getElementById('message');
@@ -63,11 +63,10 @@ socket.on("message", (message) => {
 
 function addMessageToList(message) {
     const li = document.createElement("li");
-    if(message.message.startsWith("![Image]")){
-        console.log(true)
-        li.innerHTML = message.sender + ": " + `<img class="message-image" src="${message.message.substring(9, message.message.length - 1)}" alt="Image">`;
-    }else{
-        li.innerText = message.sender + ": " + message.message;
+    if (message.messageContent.startsWith("![Image]")) {
+        li.innerHTML = message.senderName + ": " + `<img class="message-image" src="${message.messageContent.substring(9, message.messageContent.length - 1)}" alt="Image">`;
+    } else {
+        li.innerText = message.senderName + ": " + message.messageContent;
     }
     messagesList.appendChild(li);
     messagesList.scrollTop = messagesList.scrollHeight;
@@ -89,6 +88,7 @@ socket.on("user-joined", (data) => {
 
 socket.on("user-left", (data) => {
     const li = document.createElement("li");
+    // console.log(data);
     li.innerText = `${data.username} has left the chat`;
     onlineUsers.appendChild(li);
     onlineUsers.scrollTop = onlineUsers.scrollHeight;

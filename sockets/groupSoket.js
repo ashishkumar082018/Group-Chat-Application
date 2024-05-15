@@ -1,18 +1,17 @@
-const User = require("../models/userModel");
+const User = require("../models/userModel")
 const GroupMember = require("../models/groupMemberModel");
-const Message = require("../models/messagesModel");
+const Message = require("../models/messageModel");
 const Group = require("../models/groupModel");
-const database = require("../utils/database")
+const database = require("../utils/database");
 
 exports.createGroup = async (io, socket, groupData) => {
     const t = await database.transaction();
     try {
-        const group = await Group.create({
-            name: groupData.name,
-        }, { transaction: t });
-        await group.addUser(socket.user, { through: { admin: true }, transaction: t });
+        // console.log(groupData);
+        const group = await Group.create({ groupName: groupData.name}, { transaction: t });
+        await group.addUser(socket.user, { through: { isAdmin: true }, transaction: t });
         for (const member of groupData.members) {
-            const user = await User.findOne({ where: { email: member } });
+            const user = await User.findOne({ where: { userEmail: member } });
             if (!user) {
                 throw new Error("User not found");
             }
@@ -21,12 +20,12 @@ exports.createGroup = async (io, socket, groupData) => {
         await t.commit();
         io.emit("group-created", group);
     } catch (err) {
-        if (err.message == "User not found") {
+        if (err.message === "User not found") {
             socket.emit("user-not-found");
         }
         await t.rollback();
     }
-}
+};
 
 exports.getAllGroups = async (socket, cb) => {
     try {
@@ -38,22 +37,24 @@ exports.getAllGroups = async (socket, cb) => {
     catch (err) {
         console.error(err);
     }
-}
+};
 
 exports.getGroupMessages = async (socket, groupId) => {
     try {
         const userId = socket.user.id;
-        const groupMember = await GroupMember.findOne({ where: { groupId: groupId, userId: userId } });
+        // console.log(socket);
+        const groupMember = await GroupMember.findOne({ where: { GroupId: groupId, UserId: userId } });
         if (!groupMember) {
             socket.emit("not-member");
+            return;
         }
-        const messages = await Message.findAll({ where: { groupId: groupId } });
-        messages.map(message => {
-            if (socket.user.name == message.sender) {
-                return message.sender = `You`;
+        const messages = await Message.findAll({ where: { GroupId: groupId } });
+        messages.forEach((message) => {
+            if (message.senderName == socket.user.userName) {
+                message.senderName = "You";
             }
-            else {
-                return message.sender;
+            else{
+                message.senderName = message.senderName;
             }
         });
         socket.emit("get-group-messages", messages);
@@ -61,46 +62,49 @@ exports.getGroupMessages = async (socket, groupId) => {
     catch (err) {
         console.error(err);
     }
-}
+};
 
 exports.getGroupMembers = async (socket, groupId) => {
     try {
         const userId = socket.user.id;
-        const groupMember = await GroupMember.findOne({ where: { groupId: groupId, userId: userId } });
+        const groupMember = await GroupMember.findOne({ where: { GroupId: groupId, UserId: userId } });
         if (!groupMember) {
             socket.emit("not-member");
             return;
         }
+        
         const group = await Group.findByPk(groupId);
-        const admin = groupMember.admin;
-        const memberList = await group.getUsers();
-        const idAndNames = memberList.reduce((acc, user) => {
-            if (socket.user.name != user.name) {
-                acc[user.id] = user.name;
-            }
-            else {
-                acc[user.id] = `You`;
+        const isAdmin = groupMember.isAdmin;
+        const members = await group.getUsers();
+        // console.log(members);
+        const memberInfo = members.reduce((acc, member) => {
+            if (socket.user.userName !== member.userName) {
+                acc[member.id] = member.userName;
+            } else {
+                acc[member.id] = "You";
             }
             return acc;
         }, {});
-        const emails = memberList.map(user => {
-            if (user.email != socket.user.email)
-                return user.email;
-        });
-        socket.emit("group-members", idAndNames, admin, emails);
-    }
-    catch (err) {
+
+        const memberEmails = members
+            .filter(member => member.userEmail !== socket.user.userEmail)
+            .map(member => member.userEmail);
+
+        socket.emit("group-members", memberInfo, isAdmin, memberEmails);
+    } catch (err) {
         console.error(err);
     }
 }
 
+
 exports.postMessages = async (socket, message, groupId) => {
-    const { name, id } = socket.user;
+    const { userName,id , userId } = socket.user;
+    // console.log(id);
     const t = await database.transaction();
     try {
-        await Message.create({ message: message, sender: name, UserId: id, GroupId: groupId });
+        await Message.create({ messageContent : message, senderName : userName, UserId : id, GroupId : groupId });
         await t.commit();
-        socket.to(groupId).emit("post-group-message", { message: message, sender: name, userId: id });
+        socket.to(groupId).emit("post-group-message", { messageContent: message, senderName: userName, id : userId, GroupId: groupId });
     } catch (error) {
         console.error(error.message);
         await t.rollback();

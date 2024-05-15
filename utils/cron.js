@@ -1,6 +1,6 @@
 const sequelize = require("sequelize");
 
-const Message = require("../models/messagesModel");
+const Message = require("../models/messageModel");
 const Archived = require("../models/archievedModel");
 
 exports.archiveOldMessages = async () => {

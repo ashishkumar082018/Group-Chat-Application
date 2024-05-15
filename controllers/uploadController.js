@@ -14,6 +14,7 @@ function uploadToS3(data, fileName) {
     return new Promise((resolve, reject) => {
         s3.upload(params, (err, data) => {
             if (err) {
+                console.error('Error uploading to S3:', err);
                 reject(err);
             } else {
                 resolve(data.Location);
@@ -25,6 +26,9 @@ function uploadToS3(data, fileName) {
 exports.uploadImage = async (req, res) => {
     try {
         const file = req.file;
+        if (!file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
         const data = await uploadToS3(file.buffer, file.originalname);
         res.status(200).json({ imageUrl: data });
     } catch (error) {
